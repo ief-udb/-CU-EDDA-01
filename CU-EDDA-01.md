@@ -9,7 +9,7 @@
 | **ID del Caso de Uso** | CU-EDDA-01 |
 | **Nombre del Caso de Uso** | Analítica de desempeño docente asistida por IaG y gestión de evaluaciones institucionales |
 | **Fecha de creación** | 10/06/2026 |
-| **Autor(es)** | Grupo de Innovación Educativa — Universidad de Boyacá |
+| **Autor(es)** | Yeison Daniel Molina Monsalve — Universidad de Boyacá - IEF |
 | **Prioridad del proceso** | Alta |
 | **Estado** | En definición |
 
@@ -20,12 +20,12 @@
 **Resumen:**
 La Universidad de Boyacá aplica periódicamente la evaluación de desempeño por funcionario (formulario GRH-F-13) a sus docentes de tiempo completo, medio tiempo y hora cátedra. Actualmente el proceso termina con la firma del documento PDF generado por el SIIUB, sin que exista un mecanismo sistemático de análisis histórico, comparación entre pares ni generación de retroalimentación personalizada.
 
-Este caso de uso describe la automatización del ciclo completo: desde la ingesta de los datos de evaluación provenientes del SIIUB, pasando por el cálculo de métricas derivadas (ETL), hasta la generación de informes narrativos de retroalimentación, detección de alertas tempranas y consolidados por unidad organizacional, todo ello asistido por Inteligencia Artificial Generativa (IaG — Claude API), con validación humana obligatoria antes de cualquier publicación.
+Este caso de uso describe la automatización del ciclo completo: desde la ingesta de los datos de evaluación provenientes del SIIUB, pasando por el cálculo de métricas derivadas (ETL), hasta la generación de informes narrativos de retroalimentación, detección de alertas tempranas y consolidados por unidad organizacional, todo ello asistido por Inteligencia Artificial Generativa (IaG), con validación humana obligatoria antes de cualquier publicación.
 
 ### 2.1. Diagrama de flujo del proceso (propuesto)
 
-```
-[SIIUB — módulo de evaluación GRH-F-13]
+<!-- ```
+[SIIUB — módulo de evaluación GRH-F-13 (Por definir)]
                │
                ▼
 [ETL: ingesta, validación y normalización]
@@ -62,8 +62,9 @@ Este caso de uso describe la automatización del ciclo completo: desde la ingest
                ▼
    [Publicación según control de acceso
     por rol y unidad organizacional]
-```
+``` -->
 
+![<Diagrama Bnmp>](<assets/bnmp.png>)
 ---
 
 ## 3. Actores
@@ -79,7 +80,7 @@ Este caso de uso describe la automatización del ciclo completo: desde la ingest
   - **Decano / Director de programa / Vicerrector Académico** — receptores de consolidados y alertas a través del dashboard, dentro del alcance de su unidad organizacional.
   - **Administrador del sistema** — gestiona usuarios, roles, umbrales y sincronización con el SIIUB.
 
-- **Nota:** Los textos libres de la entrevista (aspectos destacados, aspectos por mejorar, compromisos) no están estructurados en el SIIUB como campos separados. Se requiere que el SIIUB los exponga como texto plano; de lo contrario, el ETL los extrae del PDF mediante parsing. Este punto debe resolverse en la negociación de integración (ver solicitud GRH-INT-001-2026).
+- **Nota:** Los textos libres de la entrevista (aspectos destacados, aspectos por mejorar, compromisos) no están estructurados en el SIIUB como campos separados. Se requiere que el SIIUB los exponga como texto plano; de lo contrario, el ETL los extrae del PDF mediante parsing. Este punto debe resolverse en la negociación de integración.
 
 ---
 
@@ -98,11 +99,11 @@ Este caso de uso describe la automatización del ciclo completo: desde la ingest
 
 | **Paso** | **Acción del actor** | **Respuesta del sistema / lógica de IaG** |
 |---|---|---|
-| 1 | El administrador o el sistema (según programación) inicia la sincronización al cierre del periodo evaluativo. | El ETL consulta el SIIUB, extrae los 23 criterios numéricos, los metadatos del registro y los tres textos libres de la entrevista. Valida que todos los campos obligatorios estén presentes y dentro del rango 1–5; reporta registros faltantes o fuera de rango sin abortar el proceso. |
+| 1 | El administrador o el sistema (según programación) inicia la sincronización al cierre del periodo evaluativo. | El ETL consulta el SIIUB, extrae los 23 criterios numéricos (**Pendiente definir**), los metadatos del registro y los tres textos libres de la entrevista. Valida que todos los campos obligatorios estén presentes y dentro del rango 1–5; reporta registros faltantes o fuera de rango sin abortar el proceso. |
 | 2 | — (proceso automático) | El ETL calcula y persiste en `METRICAS_ETL` las métricas derivadas del registro: promedios por categoría (competencias, académico, SST, investigativo), criterio mínimo y máximo, desviación interna, conteo de criterios bajo umbral. |
 | 3 | — (proceso automático, requiere ≥ 2 periodos) | El ETL calcula métricas de evolución: delta de puntaje entre periodos, delta por criterio, pendiente de tendencia (regresión lineal), racha de descenso consecutivo. |
 | 4 | — (proceso automático, requiere datos del grupo completo) | El ETL calcula métricas comparativas de grupo: percentil por periodo, z-score por criterio, flag de criterio atípico (z < −1.5). |
-| 5 | — (proceso automático, periodos activos) | El motor de IaG recibe las ~8 señales clave precalculadas (no los 23 valores crudos) más los textos libres de la entrevista. Genera: (a) análisis de coherencia entre puntajes y texto libre, (b) identificación de los 2–3 criterios prioritarios de atención, (c) borrador de plan de mejora personalizado alineado con los compromisos declarados por el evaluado, (d) conclusión narrativa del periodo. La generación es asíncrona (< 15 s) y no bloquea el dashboard. Para datos históricos este paso se omite. |
+| 5 | — (proceso automático, periodos activos) | El motor de IaG recibe las ~8 señales clave precalculadas (no los 23 valores crudos **Pendiente por Definir**) más los textos libres de la entrevista. Genera: (a) análisis de coherencia entre puntajes y texto libre, (b) identificación de los 2–3 criterios prioritarios de atención, (c) borrador de plan de mejora personalizado alineado con los compromisos declarados por el evaluado, (d) conclusión narrativa del periodo. La generación es asíncrona (< 15 s) y no bloquea el dashboard. Para datos históricos este paso se omite. |
 | 6 | El jefe inmediato / evaluador revisa el borrador generado por la IaG en el dashboard. Puede aceptar, editar o rechazar cada sección antes de publicar. | El sistema registra la acción (aceptado / editado / rechazado) con marca de tiempo y usuario. El informe no se publica hasta que el evaluador valide explícitamente. |
 | 7 | — (proceso automático) | El sistema genera el **informe individual** del docente: historial de niveles por criterio y periodo, métricas ETL, retroalimentación IaG validada, plan de mejora y compromisos. |
 | 8 | — (proceso automático) | El sistema genera el **consolidado por unidad organizacional**: distribución de escalas (BUENO / EXCELENTE / etc.), tendencias por programa y facultad, ranking de criterios con mayor variación, alertas activas. Visible según el alcance del rol del solicitante. |
@@ -133,7 +134,7 @@ Este caso de uso describe la automatización del ciclo completo: desde la ingest
 ## 7. Postcondiciones
 
 **Éxito:**
-- Los 23 criterios y las métricas ETL derivadas están calculados y almacenados para el periodo procesado.
+- Los 23 criterios **Pendiente por Definir** y las métricas ETL derivadas están calculados y almacenados para el periodo procesado.
 - El informe individual está disponible para el docente evaluado y su jefe inmediato según la matriz de acceso.
 - El consolidado por unidad organizacional está disponible para el directivo correspondiente.
 - Las alertas de riesgo (si aplica) han sido enviadas a los destinatarios definidos y tienen estado `NUEVA` en el dashboard.
@@ -179,12 +180,12 @@ Las siguientes variables se derivan de los datos recibidos y se persisten en `ME
 - `prom_competencias`, `prom_academico`, `prom_sst`, `prom_investigativo` — AVG de criterios por categoría.
 - `criterio_min_valor` / `criterio_min_nombre` — criterio con puntaje más bajo.
 - `criterio_max_valor` / `criterio_max_nombre` — criterio con puntaje más alto.
-- `desviacion_intra` — STDEV de los 23 criterios; alta dispersión indica perfil mixto.
+- `desviacion_intra` — STDEV de los 23 criterios **Pendiente por Definir**; alta dispersión indica perfil mixto.
 - `criterios_bajo_umbral` — COUNT de criterios con valor < umbral configurable (default 4.0).
 
 **De evolución (requiere ≥ 2 periodos):**
 - `delta_puntaje` — diferencia del puntaje global respecto al periodo anterior (`LAG()`).
-- `delta_por_criterio` — vector de diferencias por cada uno de los 23 criterios.
+- `delta_por_criterio` — vector de diferencias por cada uno de los 23 criterios **Pendiente por Definir**.
 - `tendencia_pendiente` — pendiente de regresión lineal del puntaje a lo largo de N periodos.
 - `racha_descenso` — periodos consecutivos con delta negativo; señal de alerta temprana.
 
@@ -224,7 +225,7 @@ El sistema implementa un modelo RBAC (Role-Based Access Control) extendido con a
 | Consultar log de auditoría | ✓ Total | — | — | — | — |
 | Configurar umbrales y parámetros | ✓ Total | — | — | — | — |
 
-**Regla especial:** El Directivo (Rector / Vicerrector) accede a puntajes globales y tendencias agregadas, pero **no** a los textos libres de entrevistas individuales ni a los informes narrativos de docentes específicos. Esto evita el uso de la herramienta para microgestión fuera del canal jerárquico natural.
+**Regla especial:** El Rector / Vicerrector accede a puntajes globales y tendencias agregadas, pero **no** a los textos libres de entrevistas individuales ni a los informes narrativos de docentes específicos. Esto evita el uso de la herramienta para microgestión fuera del canal jerárquico natural.
 
 ---
 
@@ -234,7 +235,7 @@ La integración con el SIIUB es de **solo lectura**. El aplicativo no escribe ni
 
 ### 10.1. Módulo de Recursos Humanos
 
-| Campo | Variable destino | Formato | Prioridad |
+| Campo | Variable destino | Formato **(Por definir)** | Prioridad |
 |---|---|---|---|
 | Código único del funcionario | `codigo_siiub` | INT / VARCHAR | Alta |
 | Nombres y apellidos completos | `nombres`, `apellidos` | VARCHAR | Alta |
@@ -248,7 +249,7 @@ La integración con el SIIUB es de **solo lectura**. El aplicativo no escribe ni
 
 ### 10.2. Módulo de Evaluación
 
-| Campo | Variable destino | Formato | Prioridad |
+| Campo | Variable destino | Formato **(Por definir)** | Prioridad |
 |---|---|---|---|
 | Código del evaluador | `evaluador.codigo_siiub` | INT | Alta |
 | Periodo evaluado (inicio y fin) | `periodo_inicio`, `periodo_fin` | DATE | Alta |
